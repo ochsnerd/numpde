@@ -1,0 +1,11 @@
+include(CheckCXXCompilerFlag)
+CHECK_CXX_COMPILER_FLAG(-Wall COMPILER_SUPPORTS_WALL)
+CHECK_CXX_COMPILER_FLAG(-Wextra COMPILER_SUPPORTS_WEXTRA)
+
+add_library(warning_flags INTERFACE)
+if(COMPILER_SUPPORTS_WALL)
+  target_compile_options(warning_flags INTERFACE -Wall)
+endif()
+if(COMPILER_SUPPORTS_WEXTRA)
+  target_compile_options(warning_flags INTERFACE -Wextra)
+endif()
