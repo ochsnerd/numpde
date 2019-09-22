@@ -41,11 +41,29 @@ upwindFD(const Eigen::VectorXd &u0,
     auto [xL, xR] = domain;
     double dx = (xR - xL) / (N - 1.0);
 
-    /* Initialize u */
-// (write your solution here)
+    // initial conditions
+    u.block(1, 0, N, 1) = u0;
+
+    // outflow boundary conditions
+    apply_boundary_conditions(u, 0);
 
     /* Main loop */
-// (write your solution here)
+    for (int t = 0; t < nsteps; ++t) {
+      time(t) = t * dt;
+      for (int i = 1; i < N + 1; ++i) {
+        auto a_ = a(xL + (i - 1) * dx);
+
+        auto a_plus = std::max(a_, 0.);
+        auto a_minus = std::min(a_, 0.);
+
+        auto u_plus = (u(i + 1, t) - u(i, t)) / dx;
+        auto u_minus = (u(i, t) - u(i - 1, t)) / dx;
+
+        u(i, t + 1) = u(i, t) - dt * (a_plus * u_minus + a_minus * u_plus);
+      }
+      apply_boundary_conditions(u, t + 1);
+    }
+    time(nsteps) = T;
 
     return {std::move(u), std::move(time)};
 }
@@ -79,11 +97,23 @@ centeredFD(const Eigen::VectorXd &u0,
     auto [xL, xR] = domain;
     double dx = (xR - xL) / (N - 1.0);
 
-    /* Initialize u */
-// (write your solution here)
+    // initial conditions
+    u.block(1, 0, N, 1) = u0;
+
+    // outflow boundary conditions
+    apply_boundary_conditions(u, 0);
 
     /* Main loop */
-// (write your solution here)
+    for (int t = 0; t < nsteps; ++t) {
+      time(t) = t * dt;
+      for (int i = 1; i < N + 1; ++i) {
+        u(i, t + 1) = u(i + 1, t) - u(i - 1, t);
+        u(i, t + 1) *= (-.5) * dt * a(xL + (i - 1) * dx) / dx;
+        u(i, t + 1) += u(i, t);
+      }
+      apply_boundary_conditions(u, t + 1);
+    }
+    time(nsteps) = T;
 
     return {std::move(u), std::move(time)};
 }
@@ -107,6 +137,7 @@ int main() {
     auto domain = std::pair<double, double>{xL, xR};
 
     auto a = [](double x) { return std::sin(2.0 * M_PI * x); };
+    //auto a = [](double x) { return 1; };
 
     Eigen::VectorXd u0(N);
     double h = (xR - xL) / (N - 1.0);
