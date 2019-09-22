@@ -11,7 +11,7 @@ import matplotlib.animation as manimation
 try:
 	sol_filename = sys.argv[1]
 except:
-	print "Usage: python sol_movie.py <name of the file containing data for u>"
+	print("Usage: python sol_movie.py <name of the file containing data for u>")
 	sys.exit()
 
 u=loadtxt(sol_filename)
