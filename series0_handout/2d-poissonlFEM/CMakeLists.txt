@@ -21,25 +21,25 @@ endif()
 
 INCLUDE(ExternalProject)
 
-ExternalProject_Add(
-    Eigen
-    URL http://bitbucket.org/eigen/eigen/get/3.2.7.zip
-    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/Eigen
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND "")
+# ExternalProject_Add(
+#     Eigen
+#     URL http://bitbucket.org/eigen/eigen/get/3.2.7.zip
+#     SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/Eigen
+#     CONFIGURE_COMMAND ""
+#     BUILD_COMMAND ""
+#     INSTALL_COMMAND "")
 
-ExternalProject_Add(
-    IGL
-    URL https://github.com/libigl/libigl/archive/master.zip
-    SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/IGL
-    CONFIGURE_COMMAND ""
-    BUILD_COMMAND ""
-    INSTALL_COMMAND "")
+# ExternalProject_Add(
+#     IGL
+#     URL https://github.com/libigl/libigl/archive/master.zip
+#     SOURCE_DIR ${CMAKE_CURRENT_BINARY_DIR}/IGL
+#     CONFIGURE_COMMAND ""
+#     BUILD_COMMAND ""
+#     INSTALL_COMMAND "")
 
 
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/Eigen)
-INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/IGL/include)
+# INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/Eigen)
+# INCLUDE_DIRECTORIES(${CMAKE_CURRENT_BINARY_DIR}/IGL/include)
 INCLUDE_DIRECTORIES(".")
 
 ADD_DEFINITIONS(-D_USE_MATH_DEFINES)
@@ -49,6 +49,6 @@ FILE(GLOB SRC *.cpp *.hpp)
 ADD_EXECUTABLE(fem2d ${SRC})
 TARGET_LINK_LIBRARIES(fem2d ${THREADS_LIBRARIES} ${CMAKE_THREAD_LIBS_INIT})
 
-ADD_DEPENDENCIES(fem2d IGL Eigen )
+# ADD_DEPENDENCIES(fem2d IGL Eigen )
 
 ADD_SUBDIRECTORY(unittest)
