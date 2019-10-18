@@ -19,4 +19,6 @@ struct SimulationTime {
 
 bool is_finished(const SimulationTime &simulation_time);
 
+inline SimulationTime make_dummy_simulationtime() { return SimulationTime(0, .01, 1, 0); }
+
 #endif // FVMSCALAR1D_SIMULATION_TIME_HPP
