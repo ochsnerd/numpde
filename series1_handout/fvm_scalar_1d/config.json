@@ -1,0 +1,14 @@
+{
+  "output": "testing-",
+
+  "boundary_condition": "periodic",
+  "reconstruction": "o1",
+  "time_integrator": "forward_euler",
+  "flux": "central_flux",
+
+  "n_interior_cells": 100,
+  "n_ghost": 2,
+
+  "t_end": 0.2,
+  "cfl_number": 0.45
+}
