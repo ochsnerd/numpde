@@ -2,6 +2,8 @@
 #define FVMSCALAR1D_NUMERICAL_FLUX_HPP
 
 #include <memory>
+#include <cmath>
+#include <algorithm>
 
 #include <ancse/grid.hpp>
 #include <ancse/model.hpp>
@@ -34,5 +36,21 @@ class CentralFlux {
     Model model;
 };
 
+
+class RusanovFlux {
+  // Mishra Hyperbolic PDES 4.2.4
+public:
+  explicit RusanovFlux(const Model& model) : model_(model) {}
+
+  double operator() (double uL, double uR) const {
+    auto speed = std::max(std::abs(model_.max_eigenvalue(uL)),
+                          std::abs(model_.max_eigenvalue(uR)));
+
+    return CentralFlux(model_)(uL, uR) - 0.5 * (uR - uL) * speed;
+  }
+
+private:
+  Model model_;
+};
 
 #endif // FVMSCALAR1D_NUMERICAL_FLUX_HPP

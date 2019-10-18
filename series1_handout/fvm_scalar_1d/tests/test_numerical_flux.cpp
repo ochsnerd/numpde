@@ -19,4 +19,9 @@ TEST(TestCentralFlux, consistency) {
     check_consistency(central_flux);
 }
 
+TEST(TestRusanovFlux, consistency) {
+  auto rf = RusanovFlux(make_dummy_model());
+
+  check_consistency(rf);
+}
 
