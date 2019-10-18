@@ -31,7 +31,17 @@ void computeLoadVector(Vector& loadVector,
 {
     Eigen::Matrix2d coordinateTransform = makeCoordinateTransform(b - a, c - a);
     double volumeFactor = std::abs(coordinateTransform.determinant());
-// (write your solution here)
 
+    for (int i = 0; i < 3; ++i) {
+      auto integrand = [&](double x, double y) {
+                         auto x_ = coordinateTransform
+                           * Eigen::Vector2d(x, y)
+                           + Eigen::Vector2d(a(0), a(1));
+                         return lambda(i, x, y) * f(x_(0), x_(1));
+                       };
+        loadVector(i) = integrate(integrand);
+    }
+
+    loadVector *= volumeFactor;
 }
 //----------------compVectorEnd----------------

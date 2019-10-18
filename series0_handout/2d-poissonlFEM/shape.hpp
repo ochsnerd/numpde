@@ -1,5 +1,5 @@
 #pragma once
-
+#include<stdexcept>
 
 //! The shape function (on the reference element)
 //! 
@@ -13,6 +13,14 @@
 //! @param x x coordinate in the reference element.
 //! @param y y coordinate in the reference element.
 inline double lambda(int i, double x, double y) {
-// (write your solution here)
-return 0; //remove when implemented
+  switch(i) {
+  case 0:
+    return 1 - x - y;
+  case 1:
+    return x;
+  case 2:
+    return y;
+  default:
+    throw std::invalid_argument("i has to be in {0,1,2}"); break;
+  }
 }
