@@ -25,3 +25,10 @@ TEST(TestRusanovFlux, consistency) {
   check_consistency(rf);
 }
 
+TEST(TestLaxFriedrichsFlux, consistency) {
+  auto lff = LaxFriedrichsFlux(make_dummy_model(),
+                               make_dummy_grid(),
+                               std::make_shared<SimulationTime>(make_dummy_simulationtime())); // shared_ptr (┛ಠ_ಠ)┛彡┻━┻
+
+  check_consistency(lff);
+}

@@ -53,4 +53,22 @@ private:
   Model model_;
 };
 
+
+class LaxFriedrichsFlux {
+  // LN 4.2.3
+public:
+  LaxFriedrichsFlux(const Model& model, const Grid& grid, const std::shared_ptr<SimulationTime>& time) :  // shared_ptr (┛ಠ_ಠ)┛彡┻━┻
+    model_{model},
+    speed_{grid.dx / time->dt} // shared_ptr (┛ಠ_ಠ)┛彡┻━┻
+  {}
+
+  double operator() (double uL, double uR) const {
+    return CentralFlux(model_)(uL, uR) - 0.5 * speed_ * (uR -uL);
+  }
+
+private:
+  Model model_;
+  double speed_;
+};
+
 #endif // FVMSCALAR1D_NUMERICAL_FLUX_HPP
