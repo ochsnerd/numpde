@@ -40,7 +40,7 @@ class CentralFlux {
 class RusanovFlux {
   // Mishra Hyperbolic PDES 4.2.4
 public:
-  explicit RusanovFlux(const Model& model) : model_(model) {}
+  explicit RusanovFlux(const Model& model) : model_{model} {}
 
   double operator() (double uL, double uR) const {
     auto speed = std::max(std::abs(model_.max_eigenvalue(uL)),
