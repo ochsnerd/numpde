@@ -71,4 +71,27 @@ private:
   double speed_;
 };
 
+class RoeFlux {
+  // Mishra Hyperbolic PDES 4.2.1
+public:
+  explicit RoeFlux(const Model& model) : model_{model} {}
+
+  double operator() (double uL, double uR) {
+    double linearized_flux;
+    if (std::abs(uL - uR) > 1e-12) {
+      linearized_flux = (model_.flux(uR) - model_.flux(uL)) / (uR - uL);
+    } else {
+      linearized_flux = model_.max_eigenvalue(uL);
+    }
+
+    if (linearized_flux < 0) {
+      return model_.flux(uR);
+    } else {
+      return model_.flux(uL);
+    }
+  }
+private:
+  Model model_;
+};
+
 #endif // FVMSCALAR1D_NUMERICAL_FLUX_HPP
