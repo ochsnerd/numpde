@@ -41,3 +41,32 @@ TEST(SecondOrderReconstruction, Example) {
   ASSERT_DOUBLE_EQ(uL, .5);
   ASSERT_DOUBLE_EQ(uR, -.5);
 }
+
+TEST(Testminmod_limiter, Example) {
+  Eigen::VectorXd u(5);
+  u << 2, 2, 1, 0, 0;
+
+  ASSERT_DOUBLE_EQ(minmod_limiter(u, 1, 1), 0);
+  ASSERT_DOUBLE_EQ(minmod_limiter(u, 1, 2), -1);
+  ASSERT_DOUBLE_EQ(minmod_limiter(u, 1, 3), 0);
+}
+
+// Test mathematical functions
+TEST(Testslope, Example) {
+  ASSERT_DOUBLE_EQ(slope(1,1,1), 0);
+  ASSERT_DOUBLE_EQ(slope(0,1,1), 1);
+  ASSERT_DOUBLE_EQ(slope(1,0,1), -1);
+  ASSERT_DOUBLE_EQ(slope(-2,2,4), 1);
+  ASSERT_DOUBLE_EQ(slope(0,M_PI,M_PI), 1);
+}
+
+TEST(Testminmod, Example) {
+  ASSERT_EQ(minmod(-1,1), 0);
+  ASSERT_EQ(minmod(1,1), 1);
+  ASSERT_EQ(minmod(-1,-1), -1);
+  ASSERT_EQ(minmod(-1,-2), -1);
+  // depends on definiton of sign(0)
+  // or does it? maybe just for maxmod
+  ASSERT_EQ(minmod(1,0), 0);
+  ASSERT_EQ(minmod(-1, 0), 0);
+}

@@ -12,6 +12,11 @@
 
 inline double sign(double a) { return copysign(1.0, a); }
 
+inline double slope(double L, double R, double dx) { return (R - L) / dx; }
+
+inline double maxmod(double a, double b){
+  return sign(a) == sign(b) ? sign(a) * std::max(std::abs(a),std::abs(b)) : 0;
+}
 
 class PWConstantReconstruction {
   public:
@@ -55,5 +60,9 @@ private:
   double dx_;
   SlopeLimiter sigma_;
 };
+
+inline double minmod_limiter(const Eigen::VectorXd& u, double dx, int i) {
+  return minmod(slope(u[i], u[i+1], dx), slope(u[i-1], u[i], dx));
+}
 
 #endif // FVMSCALAR1D_RATE_OF_CHANGE_HPP
