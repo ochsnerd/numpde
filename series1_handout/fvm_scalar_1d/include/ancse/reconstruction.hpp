@@ -40,5 +40,20 @@ class PWConstantReconstruction {
     }
 };
 
+template <class SlopeLimiter>
+class SecondOrderReconstruction {
+public:
+  SecondOrderReconstruction(const Grid& grid, SlopeLimiter sigma) : dx_{grid.dx}, sigma_{sigma} {}
+
+  std::pair<double, double> operator() (const Eigen::VectorXd& u, int i) const {
+    // unsure if correct, what is actually stored in u?
+    // u_i or u_{i + 1/2}?
+    return {u[i] + .5 * dx_ * sigma_(u, dx_, i), u[i + 1] - .5 * dx_ * sigma_(u, dx_, i + 1)};
+  }
+
+private:
+  double dx_;
+  SlopeLimiter sigma_;
+};
 
 #endif // FVMSCALAR1D_RATE_OF_CHANGE_HPP
