@@ -19,6 +19,6 @@ struct Grid {
 /// Compute the center of cell `i`.
 double cell_center(const Grid &grid, int i);
 
-inline Grid make_dummy_grid() { return Grid(std::make_pair(0, 1), 100, 1); }
+inline Grid make_dummy_grid() { return Grid(std::make_pair(0, 1), 102, 1); }
 
 #endif // FVMSCALAR1D_GRID_HPP
