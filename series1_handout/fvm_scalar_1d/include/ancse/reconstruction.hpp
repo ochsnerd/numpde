@@ -14,6 +14,10 @@ inline double sign(double a) { return copysign(1.0, a); }
 
 inline double slope(double L, double R, double dx) { return (R - L) / dx; }
 
+inline double minmod(double a, double b) {
+  return sign(a) == sign(b) ? sign(a) * std::min(std::abs(a),std::abs(b)) : 0;
+}
+
 inline double maxmod(double a, double b){
   return sign(a) == sign(b) ? sign(a) * std::max(std::abs(a),std::abs(b)) : 0;
 }
@@ -63,6 +67,16 @@ private:
 
 inline double minmod_limiter(const Eigen::VectorXd& u, double dx, int i) {
   return minmod(slope(u[i], u[i+1], dx), slope(u[i-1], u[i], dx));
+}
+
+inline double superbee_limiter(const Eigen::VectorXd& u, double dx, int i) {
+  auto slope_l = slope(u[i-1], u[i], dx);
+  auto slope_r = slope(u[i], u[i+1], dx);
+
+  auto sigma_l = minmod(2*slope_l, slope_r);
+  auto sigma_r = minmod(slope_l, 2*slope_r);
+
+  return maxmod(sigma_l, sigma_r);
 }
 
 #endif // FVMSCALAR1D_RATE_OF_CHANGE_HPP

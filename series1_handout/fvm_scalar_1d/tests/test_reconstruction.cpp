@@ -51,6 +51,10 @@ TEST(Testminmod_limiter, Example) {
   ASSERT_DOUBLE_EQ(minmod_limiter(u, 1, 3), 0);
 }
 
+TEST(Testsuperbee_limiter, Example) {
+  ASSERT_EQ("Did you find some test-examples for superbee?","no :(");
+}
+
 // Test mathematical functions
 TEST(Testslope, Example) {
   ASSERT_DOUBLE_EQ(slope(1,1,1), 0);
@@ -69,4 +73,14 @@ TEST(Testminmod, Example) {
   // or does it? maybe just for maxmod
   ASSERT_EQ(minmod(1,0), 0);
   ASSERT_EQ(minmod(-1, 0), 0);
+}
+
+TEST(Testmaxmod, Example) {
+  ASSERT_EQ(maxmod(-1,1), 0);
+  ASSERT_EQ(maxmod(1,1), 1);
+  ASSERT_EQ(maxmod(-1,-1), -1);
+  ASSERT_EQ(maxmod(-1,-2), -2);
+  // depends on definiton of sign(0)
+  ASSERT_EQ(maxmod(1,0), 1);
+  ASSERT_EQ(maxmod(-1, 0), 0);
 }
