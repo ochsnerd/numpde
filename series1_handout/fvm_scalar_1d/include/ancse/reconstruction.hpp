@@ -98,9 +98,9 @@ inline double MC_limiter(const Eigen::VectorXd& u, double dx, int i) {
   return minmod(2*slope_l, slope_c, 2*slope_r);
 }
 
-inline double vanLeer_limiter(const Eigen::VectorXd& u, double _, int i) {
-  auto r = (u[i+1] - u[i]) / (u[i] - u[i-1]);
+inline double vanLeer_limiter(const Eigen::VectorXd& u, double dx, int i) {
+  auto r = (u[i] - u[i-1]) / (u[i+1] - u[i]);
 
-  return (r + std::abs(r)) / (1 + std::abs(r));
+  return (r + std::abs(r)) / (1 + std::abs(r)) * (u[i+1] - u[i]) / dx;
 }
 #endif // FVMSCALAR1D_RATE_OF_CHANGE_HPP
