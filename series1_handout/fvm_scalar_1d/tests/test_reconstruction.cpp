@@ -1,7 +1,71 @@
 #include <gtest/gtest.h>
+#include <cmath>
+#include <random>
 
 #include <ancse/reconstruction.hpp>
 
+template <class SlopeLimiter>
+void check_TVD(const SlopeLimiter& sigma,
+               const Eigen::VectorXd& u,
+               std::pair<double,double> bounds,
+               double dx) {
+  for (int i = 1; i < u.size() - 1; ++i) {
+    auto jump = dx * (sigma(u, dx, i)) / (u[i+1] - u[i]);
+
+    EXPECT_LE(jump, bounds.second);
+    EXPECT_GE(jump, bounds.first);
+  }
+}
+
+template <class SlopeLimiter>
+void check_TVD_sin(const SlopeLimiter& sigma, std::pair<double, double> bounds) {
+  int n = 1000;
+  double dx = 0.01;
+
+  Eigen::VectorXd u(n);
+
+  for (int i = 0; i < u.size(); ++i) {
+    u[i] = std::sin(2 * M_PI * i / n);
+  }
+
+  check_TVD(sigma, u, bounds, dx);
+}
+
+template <class SlopeLimiter>
+void check_TVD_sin_perturbed(const SlopeLimiter& sigma, std::pair<double, double> bounds) {
+  int n = 1000;
+  double dx = 0.01;
+
+  Eigen::VectorXd u(n);
+
+  std::mt19937 eng(42);
+  std::normal_distribution<double> N(0, 0.1);
+
+  for (int i = 0; i < u.size(); ++i) {
+    u[i] = std::sin(2 * M_PI * i / n) + N(eng);
+  }
+
+  check_TVD(sigma, u, bounds, dx);
+}
+
+template <class SlopeLimiter>
+void check_TVD_local_extrema(const SlopeLimiter& sigma) {
+  Eigen::VectorXd maximum(3);
+  maximum << 0, 1, 0;
+
+  Eigen::VectorXd minimum(3);
+  minimum << 0, -1, 0;
+
+  EXPECT_DOUBLE_EQ(sigma(maximum, 1, 1), 0);
+  EXPECT_DOUBLE_EQ(sigma(minimum, 1, 1), 0);
+}
+
+template <class SlopeLimiter>
+void check_TVD(const SlopeLimiter& sigma) {
+  check_TVD_sin(sigma, {-2, 2});
+  check_TVD_sin_perturbed(sigma, {-2, 2});
+  check_TVD_local_extrema(sigma);
+}
 
 // Test by checking an easy example.
 TEST(TestPWConstant, Example) {
