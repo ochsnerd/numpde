@@ -61,7 +61,7 @@ TEST(Testslope, Example) {
   ASSERT_DOUBLE_EQ(slope(0,1,1), 1);
   ASSERT_DOUBLE_EQ(slope(1,0,1), -1);
   ASSERT_DOUBLE_EQ(slope(-2,2,4), 1);
-  ASSERT_DOUBLE_EQ(slope(0,M_PI,M_PI), 1);
+  ASSERT_DOUBLE_EQ(slope(0.0,M_PI,M_PI), 1);
 }
 
 TEST(Testminmod, Example) {

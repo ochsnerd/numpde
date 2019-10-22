@@ -10,21 +10,26 @@
 #include <ancse/rate_of_change.hpp>
 #include <ancse/simulation_time.hpp>
 
-inline double sign(double a) { return copysign(1.0, a); }
+template <typename T>
+inline T sign(T a) { return copysign(1.0, a); }
 
-inline double slope(double L, double R, double dx) { return (R - L) / dx; }
+template <typename T>
+inline double slope(T L, T R, T dx) { return double(R - L) / dx; }
 
-inline double minmod(double a, double b) {
+template <typename T>
+inline T minmod(T a, T b) {
   return sign(a) == sign(b) ? sign(a) * std::min(std::abs(a),std::abs(b)) : 0;
 }
 
-inline double minmod(double a, double b, double c) {
+template <typename T>
+inline T minmod(T a, T b, T c) {
   return sign(a) == sign(b) && sign(a) == sign(c)
     ? sign(a) * std::min({std::abs(a), std::abs(b), std::abs(c)})
     : 0;
 }
 
-inline double maxmod(double a, double b){
+template <typename T>
+inline T maxmod(T a, T b){
   return sign(a) == sign(b) ? sign(a) * std::max(std::abs(a),std::abs(b)) : 0;
 }
 
@@ -93,7 +98,7 @@ inline double MC_limiter(const Eigen::VectorXd& u, double dx, int i) {
   return minmod(2*slope_l, slope_c, 2*slope_r);
 }
 
-inline double vanLeer_limiter(const Eigen::VectorXd& u, double dx, int i) {
+inline double vanLeer_limiter(const Eigen::VectorXd& u, double _, int i) {
   auto r = (u[i+1] - u[i]) / (u[i] - u[i-1]);
 
   return (r + std::abs(r)) / (1 + std::abs(r));
