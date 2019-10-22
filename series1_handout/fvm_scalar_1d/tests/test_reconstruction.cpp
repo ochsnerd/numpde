@@ -96,6 +96,7 @@ TEST(SecondOrderReconstruction, Example) {
                        {
                          return (u[i+1] - u[i])/dx;
                        };
+
   auto rc = SecondOrderReconstruction(make_dummy_grid(), forward_slope);
 
   Eigen::VectorXd u(3);
@@ -116,7 +117,15 @@ TEST(Testminmod_limiter, Example) {
 }
 
 TEST(Testsuperbee_limiter, Example) {
-  ASSERT_EQ("Did you find some test-examples for superbee?","no :(");
+  check_TVD(superbee_limiter);
+}
+
+TEST(TestMC_limiter, Example) {
+  check_TVD(MC_limiter);
+}
+
+TEST(TestvanLeer_limiter, Example) {
+  check_TVD(vanLeer_limiter);
 }
 
 // Test mathematical functions
