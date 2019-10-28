@@ -34,7 +34,7 @@ TEST(TestLaxFriedrichsFlux, consistency) {
 }
 
 TEST(TestRoeFlux, consistency) {
-  auto rf = RusanovFlux(make_dummy_model());
+  auto rf = RoeFlux(make_dummy_model());
 
   check_consistency(rf);
 }
