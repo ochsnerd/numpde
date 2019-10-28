@@ -18,23 +18,26 @@
  */
 template <class NumericalFlux, class Reconstruction>
 class FVMRateOfChange : public RateOfChange {
-  public:
-    FVMRateOfChange(const Grid &grid,
-                    const NumericalFlux &numerical_flux,
-                    const Reconstruction &reconstruction)
-        : grid(grid),
-          numerical_flux(numerical_flux),
-          reconstruction(reconstruction) {}
+public:
+  FVMRateOfChange(const Grid &grid,
+                  const NumericalFlux &numerical_flux,
+                  const Reconstruction &reconstruction)
+    : grid(grid),
+      numerical_flux(numerical_flux),
+      reconstruction(reconstruction) {}
 
-    virtual void operator()(Eigen::VectorXd &dudt,
-                            const Eigen::VectorXd &u0) const override {
-        // implement the flux loop here.
+  virtual void operator()(Eigen::VectorXd &dudt,
+                          const Eigen::VectorXd &u0) const override {
+    for (int i = grid.n_ghost; i < grid.n_cells - grid.n_ghost; ++i) {
+      dudt[i] = numerical_flux(reconstruction(u0, i)) - numerical_flux(reconstruction(u0, i - 1));
     }
+    dudt *= -1. / grid.dx;
+  }
 
-  private:
-    Grid grid;
-    NumericalFlux numerical_flux;
-    Reconstruction reconstruction;
+private:
+  Grid grid;
+  NumericalFlux numerical_flux;
+  Reconstruction reconstruction;
 };
 
 std::shared_ptr<RateOfChange>
