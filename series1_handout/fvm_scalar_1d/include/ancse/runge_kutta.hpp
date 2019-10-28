@@ -61,7 +61,33 @@ class ForwardEuler : public RungeKutta {
     mutable Eigen::VectorXd dudt;
 };
 
+class SSP2 : public RungeKutta {
+private:
+  using super = RungeKutta;
 
+public:
+  SSP2(std::shared_ptr<RateOfChange> rate_of_change,
+       std::shared_ptr<BoundaryCondition> boundary_condition,
+       int n_cells) :
+    super{std::move(rate_of_change), std::move(boundary_condition)},
+    u_star_{n_cells},
+    u_star2_{n_cells} {};
+
+  virtual void operator() (Eigen::VectorXd& u_next,
+                           const Eigen::VectorXd& u_curr,
+                           double dt) const override {
+    (*rate_of_change)(u_star_, u_curr);
+    u_star_ = u_curr + dt * u_star_;
+    (*rate_of_change)(u_star2_, u_star_);
+    u_star2_ = u_star_ + dt * u_star2_;
+    u_next = 0.5 * (u_curr + u_star2_);
+    (*boundary_condition)(u_next);
+  }
+
+private:
+  mutable Eigen::VectorXd u_star_;
+  mutable Eigen::VectorXd u_star2_;
+};
 
 std::shared_ptr<RungeKutta>
 make_runge_kutta(const std::shared_ptr<RateOfChange> &rate_of_change,
