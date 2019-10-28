@@ -63,6 +63,8 @@ class PWConstantReconstruction {
 template <class SlopeLimiter>
 class SecondOrderReconstruction {
 public:
+  // It's second-order accurate using first order polynomials, so this name is actually
+  // pretty crap
   SecondOrderReconstruction(const Grid& grid, SlopeLimiter sigma) : dx_{grid.dx}, sigma_{sigma} {}
 
   std::pair<double, double> operator() (const Eigen::VectorXd& u, int i) const {
