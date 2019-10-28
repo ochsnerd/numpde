@@ -15,7 +15,21 @@ class BoundaryCondition {
     virtual void operator()(Eigen::VectorXd &u) const = 0;
 };
 
+class PeriodicBC : public BoundaryCondition {
+public:
+  PeriodicBC(int n_ghost) : n_ghost_{n_ghost} {};
 
+  virtual void operator()(Eigen::VectorXd& u) const override {
+    int n = u.size();
+    for (int i = 0; i < n_ghost_; ++i) {
+      u[n - i] = u[n_ghost_ + i];
+      u[i] = u[n - n_ghost_ - i];
+    }
+  }
+
+private:
+  int n_ghost_;
+};
 
 /// Create the requested boundary conditions.
 /** Note: This is a factory. The purpose is to select a boundary condition at
