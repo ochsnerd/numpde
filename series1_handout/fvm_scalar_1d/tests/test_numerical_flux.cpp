@@ -8,7 +8,8 @@ void check_consistency(const NumericalFlux &nf) {
 
     auto to_check = std::vector<double>{1.0, 2.0, 3.3251, -1.332};
     for (auto u : to_check) {
-        ASSERT_DOUBLE_EQ(model.flux(u), nf(u, u));
+      ASSERT_DOUBLE_EQ(model.flux(u), nf(std::make_pair(u,u)));
+      ASSERT_DOUBLE_EQ(model.flux(u), nf(u, u));
     }
 }
 
