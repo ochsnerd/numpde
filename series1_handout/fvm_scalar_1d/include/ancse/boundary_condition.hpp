@@ -22,8 +22,8 @@ public:
   virtual void operator()(Eigen::VectorXd& u) const override {
     int n = u.size();
     for (int i = 0; i < n_ghost_; ++i) {
-      u[n - i] = u[n_ghost_ + i];
-      u[i] = u[n - n_ghost_ - i];
+      u[i] = u[n - 2 * n_ghost_ + i];
+      u[n - n_ghost_ + i] = u[n_ghost_ + i];
     }
   }
 
