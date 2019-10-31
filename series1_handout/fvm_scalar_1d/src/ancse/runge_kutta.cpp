@@ -17,8 +17,7 @@ make_runge_kutta(const std::shared_ptr<RateOfChange> &rate_of_change,
     std::string rk_key = c["time_integrator"];
 
     REGISTER_RUNGE_KUTTA("forward_euler", ForwardEuler);
-
-    // Register your SSP2 class.
+    REGISTER_RUNGE_KUTTA("ssp2", SSP2);
 
     throw std::runtime_error(
         fmt::format("Unknown time-integrator. [{}]", rk_key));
