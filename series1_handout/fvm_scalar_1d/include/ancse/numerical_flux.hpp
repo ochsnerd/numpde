@@ -39,68 +39,68 @@ class CentralFlux {
     Model model;
 };
 
+template<class ConcreteFlux>
 class NumericalFlux {
   // Interface for numerical fluxes
+
+  // Using CRTP to get compile time polymorphism
 public:
   virtual ~NumericalFlux() {};
 
-  // Somehow the derived classes don't expose the operator()(pair) from
-  // here. However, say_hi can be called. Also, when adding it manually
-  // (like in RoeFlux) it works fine!
-  virtual double operator() (double, double) const = 0;
-  double operator() (std::pair<double,double> u) const {
-    return (*this)(u.first, u.second);
+  virtual double compute_flux(double, double) const = 0;
+
+  double operator() (double uL, double uR) const {
+    return static_cast<ConcreteFlux const*>(this)->compute_flux(uL, uR);
   }
 
-  int say_hi() { return 1; };
+  double operator() (std::pair<double,double> u) const {
+    return static_cast<ConcreteFlux const*>(this)->compute_flux(u.first, u.second);
+  }
 };
 
-class RusanovFlux : public NumericalFlux {
+class RusanovFlux : public NumericalFlux<RusanovFlux> {
   // Mishra Hyperbolic PDES 4.2.4
 public:
   explicit RusanovFlux(const Model& model) : model_{model} {}
 
-  double operator() (double uL, double uR) const {
+  double compute_flux(double uL, double uR) const override
+  {
     auto speed = std::max(std::abs(model_.max_eigenvalue(uL)),
                           std::abs(model_.max_eigenvalue(uR)));
 
     return CentralFlux(model_)(uL, uR) - 0.5 * (uR - uL) * speed;
   }
 
-  double operator() (std::pair<double,double> u) const {
-    return (*this)(u.first, u.second);
-  }
 private:
   Model model_;
 };
 
 
-class LaxFriedrichsFlux : public NumericalFlux {
+class LaxFriedrichsFlux : public NumericalFlux<LaxFriedrichsFlux> {
   // LN 4.2.3
 public:
-  LaxFriedrichsFlux(const Model& model, const Grid& grid, const std::shared_ptr<SimulationTime>& time) :  // shared_ptr (┛ಠ_ಠ)┛彡┻━┻
+  LaxFriedrichsFlux(const Model& model,
+                    const Grid& grid,
+                    const std::shared_ptr<SimulationTime>& time) :  // shared_ptr (┛ಠ_ಠ)┛彡┻━┻
     model_{model},
     speed_{grid.dx / time->dt} // shared_ptr (┛ಠ_ಠ)┛彡┻━┻
   {}
 
-  virtual double operator() (double uL, double uR) const override {
+  virtual double compute_flux (double uL, double uR) const override {
     return CentralFlux(model_)(uL, uR) - 0.5 * speed_ * (uR -uL);
   }
 
-  double operator() (std::pair<double,double> u) const {
-    return (*this)(u.first, u.second);
-  }
 private:
   Model model_;
   double speed_;
 };
 
-class RoeFlux : public NumericalFlux {
+class RoeFlux : public NumericalFlux<RoeFlux> {
   // Mishra Hyperbolic PDES 4.2.1
 public:
   explicit RoeFlux(const Model& model) : model_{model} {}
 
-  double operator() (double uL, double uR) const override {
+  virtual double compute_flux(double uL, double uR) const override {
     double linearized_flux;
     if (std::abs(uL - uR) > 1e-12) {
       linearized_flux = (model_.flux(uR) - model_.flux(uL)) / (uR - uL);
@@ -115,9 +115,6 @@ public:
     }
   }
 
-  double operator() (std::pair<double,double> u) const {
-    return (*this)(u.first, u.second);
-  }
 private:
   Model model_;
 };
