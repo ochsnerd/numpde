@@ -82,9 +82,9 @@ class Burgers : public Model {
 
 /// Euler equations
 class Euler : public Model {
-  // u(0)rho           density
-  // u(1) m = rho*v    momentum
-  // u(2) E = p / (1 - gamma) + 0.5 * rho * v^2
+  // u(0) rho          density
+  // u(1) v            velocity
+  // u(2) p            pressure
 public:
   using Vector = Eigen::VectorXd;
   using Matrix = Eigen::MatrixXd;
@@ -124,18 +124,20 @@ public:
   Vector cons_to_prim(const Vector &u_cons) const override {
     Vector u_prim(3);
     u_prim <<
-      rho(u_cons),
-      v(u_cons),
-      p(u_cons);
+      u_cons(0),
+      u_cons(1) / u_cons(0),
+      (u_cons(2) - 0.5 * u_cons(1) * u_cons(1) / u_cons(0) / u_cons(0)) * (gamma - 1);
     return u_prim;
   }
 
+  // Conservative variables:
+  // rho, m, E
   Vector prim_to_cons(const Vector &u_prim) const override {
     Vector u_cons(3);
     u_cons <<
-      u_prim(0),
-      u_prim(0) * u_prim(1),
-      u_prim(2) / (gamma - 1) + 0.5 * u_prim(0) * u_prim(1) * u_prim(1);
+      rho(u_prim),
+      m(u_prim),
+      E(u_prim);
     return u_cons;
   }
 
@@ -165,21 +167,21 @@ private:
   double rho(const Vector& u) const {
     return u(0);
   }
-  // momentum
-  double m(const Vector& u) const {
-    return u(1);
-  }
-  // Energy
-  double E(const Vector& u) const {
-    return u(2);
-  }
   // velocity
   double v(const Vector& u) const {
-    return m(u) / rho(u);  // fine as long as we're strictly hyperbolic, possibly division by 0 otherwise
+    return u(1);
   }
   // pressure
   double p(const Vector& u) const {
-    return (E(u) - 0.5 * v(u) * v(u)) * (gamma - 1);
+    return u(2);
+  }
+  // momentum
+  double m(const Vector& u) const {
+    return v(u) * rho(u);
+  }
+  // Energy
+  double E(const Vector& u) const {
+    return p(u) / (gamma - 1) + 0.5 * rho(u) * v(u) * v(u);
   }
   // soundspeed
   double c(const Vector& u) const {
