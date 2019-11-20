@@ -38,8 +38,46 @@ class CentralFlux {
     std::shared_ptr<Model> model;
 };
 
+template<class ConcreteFlux>
+class NumericalFlux {
+  // Interface for numerical fluxes
+
+  // Using CRTP to get compile time polymorphism
+public:
+  using Vector = Eigen::VectorXd;
+
+  virtual ~NumericalFlux() {};
+
+  virtual Vector compute_flux(const Vector&, const Vector&) const = 0;
+
+  Vector operator() (const Vector& uL, const Vector& uR) const {
+    return static_cast<ConcreteFlux const*>(this)->compute_flux(uL, uR);
+  }
+
+  Vector operator() (const std::pair<Vector,Vector>& u) const {
+    return static_cast<ConcreteFlux const*>(this)->compute_flux(u.first, u.second);
+  }
+};
 
 
+template<class Model>
+class RusanovFlux : public NumericalFlux<RusanovFlux<Model>> {
+  // Mishra Hyperbolic PDES 4.2.4
+public:
+  using Vector = typename NumericalFlux<RusanovFlux<Model>>::Vector;
 
+  explicit RusanovFlux(const Model& model) : model_{model} {}
+
+  Vector compute_flux(const Vector& uL, const Vector& uR) const override
+  {
+    double speed = std::max(std::abs(model_.max_eigenvalue(uL)),
+                          std::abs(model_.max_eigenvalue(uR)));
+
+    return 0.5 * (model_.flux(uR) + model_.flux(uL)) - 0.5 * speed * (uR - uL);
+  }
+
+private:
+  Model model_;
+};
 
 #endif // HYPSYS1D_NUMERICAL_FLUX_HPP

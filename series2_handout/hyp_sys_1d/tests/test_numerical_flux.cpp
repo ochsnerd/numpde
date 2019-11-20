@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <ancse/numerical_flux.hpp>
+#include <ancse/model.hpp>
 
 template <class NumericalFlux>
 void check_consistency_euler(const NumericalFlux &nf) {
@@ -15,7 +16,7 @@ void check_consistency_euler(const NumericalFlux &nf) {
 
     double TOL = 1E-10;
     for (int k=0; k<u.cols(); k++) {
-        ASSERT_LE( (model.flux(u.col(k)) - nf(u.col(k), u.col(k))).norm(), TOL);
+      ASSERT_LE( (model.flux(u.col(k)) - nf(u.col(k), u.col(k))).norm(), TOL);
     }
 }
 
@@ -26,7 +27,11 @@ TEST(TestCentralFlux, consistency) {
     check_consistency_euler(central_flux);
 }
 
+TEST(TestRusanovFlux, consistency) {
+  auto rf = RusanovFlux(Euler());
 
+  check_consistency_euler(rf);
+}
 
 
 
