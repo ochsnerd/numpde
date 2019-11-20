@@ -11,6 +11,16 @@
 #include <ancse/rate_of_change.hpp>
 #include <ancse/simulation_time.hpp>
 
+template <typename T>
+inline T sign(T a) { return copysign(1.0, a); }
+
+template <typename T>
+inline double slope(T L, T R, T dx) { return double(R - L) / dx; }
+
+template <typename T>
+inline T minmod(T a, T b) {
+  return sign(a) == sign(b) ? sign(a) * std::min(std::abs(a),std::abs(b)) : 0;
+}
 
 class PWConstantReconstruction {
   public:
@@ -49,5 +59,46 @@ private:
   mutable Eigen::MatrixXd up;
 };
 
+
+template <class ScalarLimiter>
+class VectorLimiter {
+public:
+  VectorLimiter(ScalarLimiter sigma) : sigma_(sigma) {}
+
+  Eigen::VectorXd operator() (const Eigen::MatrixXd& u, double dx, int i) const {
+    auto slopes = Eigen::VectorXd(u.rows());
+    for (int j = 0; j < u.rows(); ++j) {
+      slopes(j) = sigma_(u.row(j), dx, i);
+    }
+
+    return slopes;
+  }
+
+private:
+  ScalarLimiter sigma_;
+};
+
+
+template <class ScalarLimiter>
+class AffineReconstruction {
+public:
+  using Vector = Eigen::VectorXd;
+
+  AffineReconstruction(const Grid& grid, ScalarLimiter sigma) : dx_{grid.dx}, sigma_{sigma} {}
+
+  std::pair<Vector, Vector> operator() (const Eigen::MatrixXd& u, int i) const {
+    return {u.col(i) + .5 * dx_ * sigma_(u, dx_, i),
+            u.col(i + 1) - .5 * dx_ * sigma_(u, dx_, i + 1)};
+  }
+
+private:
+  double dx_;
+  VectorLimiter<ScalarLimiter> sigma_;
+};
+
+
+inline double minmod_limiter(const Eigen::VectorXd& u, double dx, int i) {
+  return minmod(slope(u[i], u[i+1], dx), slope(u[i-1], u[i], dx));
+}
 
 #endif // HYPSYS1D_RATE_OF_CHANGE_HPP
