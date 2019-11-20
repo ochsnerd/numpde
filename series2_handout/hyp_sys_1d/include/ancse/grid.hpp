@@ -22,4 +22,7 @@ double cell_center(const Grid &grid, int i);
 /// Compute the physical point of cell `i` from given reference point.
 double cell_point(const Grid &grid, int i, double xi);
 
+// Mock grid
+inline Grid make_dummy_grid() { return Grid(std::make_pair(0, 1), 102, 1); }
+
 #endif // HYPSYS1D_GRID_HPP

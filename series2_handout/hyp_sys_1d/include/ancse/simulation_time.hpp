@@ -19,4 +19,7 @@ struct SimulationTime {
 
 bool is_finished(const SimulationTime &simulation_time);
 
+// Mock SimulationTime
+inline SimulationTime make_dummy_simulationtime() { return SimulationTime(0, .01, 1, 0); }
+
 #endif // HYPSYS1D_SIMULATION_TIME_HPP
