@@ -20,26 +20,59 @@
  */
 template <class NumericalFlux, class Reconstruction>
 class FVMRateOfChange : public RateOfChange {
-  public:
-    FVMRateOfChange(const Grid &grid,
-                    const std::shared_ptr<Model> &model,
-                    const NumericalFlux &numerical_flux,
-                    const Reconstruction &reconstruction)
-        : grid(grid),
-          model(model),
-          numerical_flux(numerical_flux),
-          reconstruction(reconstruction) {}
+public:
+  using Vector = typename Model::Vector;
+  using Matrix = typename RateOfChange::Matrix;
 
-    virtual void operator()(Eigen::MatrixXd &dudt,
-                            const Eigen::MatrixXd &u0) const override {
-        // implement the flux loop here.
+  FVMRateOfChange(const Grid &grid,
+                  const std::shared_ptr<Model> &model,
+                  const NumericalFlux &numerical_flux,
+                  const Reconstruction &reconstruction)
+    : grid(grid),
+      model(model),
+      numerical_flux(numerical_flux),
+      reconstruction(reconstruction) {}
+
+  virtual void operator()(Matrix& dudt,
+                          const Matrix& u0) const override {
+    int n_cells = grid.n_cells;
+    int n_ghost = grid.n_ghost;
+
+    double dx = grid.dx;
+    Vector fL, fR;
+    // very unsure how portable that actually is, but it works for Eigen::DenseBase
+    // and for double, so that's cool I guess ¯\_(ツ)_/¯
+    fR *= 0.0;
+
+    // quick sanity check
+    assert(dudt.rows() == u0.rows());
+    assert(dudt.cols() == u0.cols());
+    assert(dudt.cols() == n_cells);
+    assert(dudt.rows() == model->get_nvars());
+
+
+    // This uses the example interface
+    reconstruction.set(u0);
+
+    for (int i = n_ghost - 1; i < n_cells - n_ghost; ++i) {
+      // This is for when we use real reconstructions
+      //auto [uL, uR] = reconstruction(u0, i);
+
+      // This uses the example interface
+      auto [uL, uR] = reconstruction(i);
+
+      fL = fR;
+      fR = numerical_flux(uL, uR);
+
+      dudt.col(i) = (fL - fR) / dx;
     }
+  }
 
-  private:
-    Grid grid;
-    std::shared_ptr<Model> model;
-    NumericalFlux numerical_flux;
-    Reconstruction reconstruction;
+private:
+  Grid grid;
+  std::shared_ptr<Model> model;
+  NumericalFlux numerical_flux;
+  Reconstruction reconstruction;
 };
 
 std::shared_ptr<RateOfChange>
