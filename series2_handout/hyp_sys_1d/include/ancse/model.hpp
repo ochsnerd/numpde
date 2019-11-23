@@ -13,18 +13,20 @@
 /// Add more functions to this interface if needed.
 class Model {
   public:
-    virtual ~Model() = default;
+  using Vector = Eigen::VectorXd;
+  using Matrix = Eigen::MatrixXd;
+  virtual ~Model() = default;
 
-    virtual Eigen::VectorXd flux(const Eigen::VectorXd &u) const = 0;
-    virtual Eigen::VectorXd eigenvalues(const Eigen::VectorXd &u) const = 0;
-    virtual Eigen::MatrixXd eigenvectors(const Eigen::VectorXd &u) const = 0;
-    virtual double max_eigenvalue(const Eigen::VectorXd &u) const = 0;
+  virtual Vector flux(const Vector &u) const = 0;
+  virtual Vector eigenvalues(const Vector &u) const = 0;
+  virtual Matrix eigenvectors(const Vector &u) const = 0;
+  virtual double max_eigenvalue(const Vector &u) const = 0;
 
-    virtual Eigen::VectorXd cons_to_prim(const Eigen::VectorXd &u) const = 0;
-    virtual Eigen::VectorXd prim_to_cons(const Eigen::VectorXd &u) const = 0;
+  virtual Vector cons_to_prim(const Vector &u) const = 0;
+  virtual Vector prim_to_cons(const Vector &u) const = 0;
 
-    virtual int get_nvars() const = 0;
-    virtual std::string get_name() const = 0;
+  virtual int get_nvars() const = 0;
+  virtual std::string get_name() const = 0;
 };
 
 class Burgers : public Model {
@@ -86,8 +88,8 @@ class Euler : public Model {
   // u(1) v            velocity
   // u(2) p            pressure
 public:
-  using Vector = Eigen::VectorXd;
-  using Matrix = Eigen::MatrixXd;
+  using Vector = Model::Vector;
+  using Matrix = Model::Matrix;
 
   Vector flux(const Vector &u) const override {
     Vector f(3);
