@@ -13,13 +13,15 @@
 
 /// Interface advancing the solution of a PDE by one step.
 class TimeIntegrator {
-  public:
-    virtual ~TimeIntegrator() = default;
+public:
+  using Matrix = Eigen::MatrixXd;
 
-    /// Update 'u1' starting from 'u0' using a time-step `dt`.
-    virtual void operator()(Eigen::MatrixXd &u1,
-                            const Eigen::MatrixXd &u0,
-                            double dt) const = 0;
+  virtual ~TimeIntegrator() = default;
+
+  /// Update 'u1' starting from 'u0' using a time-step `dt`.
+  virtual void operator()(Matrix& u1,
+                          const Matrix& u0,
+                          double dt) const = 0;
 };
 
 /// Runge-Kutta time integration methods.
@@ -29,27 +31,29 @@ class TimeIntegrator {
  */
 class RungeKutta : public TimeIntegrator {
   public:
-    RungeKutta(std::shared_ptr<RateOfChange> rate_of_change_,
-               std::shared_ptr<BoundaryCondition> boundary_condition_,
-               std::shared_ptr<Limiting> limiting_)
-  : rate_of_change(std::move(rate_of_change_)),
-    boundary_condition(std::move(boundary_condition_)),
-    limiting(std::move(limiting_))
+  using Matrix = typename TimeIntegrator::Matrix;
+
+  RungeKutta(std::shared_ptr<RateOfChange> rate_of_change_,
+             std::shared_ptr<BoundaryCondition> boundary_condition_,
+             std::shared_ptr<Limiting> limiting_)
+    : rate_of_change(std::move(rate_of_change_)),
+      boundary_condition(std::move(boundary_condition_)),
+      limiting(std::move(limiting_))
   {}
 
-  protected:
-    void post_euler_step(Eigen::MatrixXd &u) const {
-      (*boundary_condition)(u);
-      if(limiting != nullptr) {
-        (*limiting)(u);
-      }
-      (*boundary_condition)(u);
+protected:
+  void post_euler_step(Eigen::MatrixXd &u) const {
+    (*boundary_condition)(u);
+    if(limiting != nullptr) {
+      (*limiting)(u);
     }
+    (*boundary_condition)(u);
+  }
 
-  protected:
-    std::shared_ptr<RateOfChange> rate_of_change;
-    std::shared_ptr<BoundaryCondition> boundary_condition;
-    std::shared_ptr<Limiting> limiting;
+protected:
+  std::shared_ptr<RateOfChange> rate_of_change;
+  std::shared_ptr<BoundaryCondition> boundary_condition;
+  std::shared_ptr<Limiting> limiting;
 };
 
 class ForwardEuler : public RungeKutta {
@@ -80,6 +84,39 @@ class ForwardEuler : public RungeKutta {
     mutable Eigen::MatrixXd dudt;
 };
 
+class SSPRK2 : public RungeKutta {
+public:
+  using Matrix = typename RungeKutta::Matrix;
+
+  SSPRK2(std::shared_ptr<RateOfChange> rate_of_change,
+         std::shared_ptr<BoundaryCondition> boundary_condition,
+         std::shared_ptr<Limiting> limiting,
+         int n_vars,
+         int n_cells)
+    : RungeKutta(std::move(rate_of_change),
+                 std::move(boundary_condition),
+                 std::move(limiting)),
+      dudt(n_vars, n_cells) {}
+
+  virtual void operator() (Matrix& u1,
+                           const Matrix& u0,
+                           double dt) const override {
+    // Assuming that the IC already respect the boundary conditions,
+    // so we don't need to apply them before the first timestep.
+    (*rate_of_change)(dudt, u0);
+    u1 = u0 + dt * dudt;
+    post_euler_step(u1);
+
+    (*rate_of_change)(dudt, u1);
+    u1 = u1 + dt * dudt;
+    post_euler_step(u1);
+
+    u1 = 0.5 * (u0 + u1);
+  }
+  
+private:
+  mutable Matrix dudt;
+};
 
 /// make Runge Kutta for FVM
 std::shared_ptr<RungeKutta>
