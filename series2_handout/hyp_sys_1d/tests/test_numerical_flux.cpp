@@ -28,7 +28,7 @@ TEST(TestCentralFlux, consistency) {
 }
 
 TEST(TestRusanovFlux, consistency) {
-  auto rf = RusanovFlux(Euler());
+  auto rf = RusanovFlux(std::make_shared<Euler>());
 
   check_consistency_euler(rf);
 }

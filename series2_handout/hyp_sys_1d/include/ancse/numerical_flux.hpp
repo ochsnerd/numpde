@@ -60,24 +60,31 @@ public:
 };
 
 
-template<class Model>
-class RusanovFlux : public NumericalFlux<RusanovFlux<Model>> {
+class RusanovFlux : public NumericalFlux<RusanovFlux> {
   // Mishra Hyperbolic PDES 4.2.4
 public:
-  using Vector = typename NumericalFlux<RusanovFlux<Model>>::Vector;
+  using Vector = typename NumericalFlux<RusanovFlux>::Vector;
 
-  explicit RusanovFlux(const Model& model) : model_{model} {}
+  explicit RusanovFlux(const std::shared_ptr<Model>& model) : model_{model} {}
 
   Vector compute_flux(const Vector& uL, const Vector& uR) const override
   {
-    double speed = std::max(std::abs(model_.max_eigenvalue(uL)),
-                          std::abs(model_.max_eigenvalue(uR)));
+    double speed = std::max(std::abs(model_->max_eigenvalue(uL)),
+                            std::abs(model_->max_eigenvalue(uR)));
 
-    return 0.5 * (model_.flux(uR) + model_.flux(uL)) - 0.5 * speed * (uR - uL);
+    return 0.5 * (model_->flux(uR) + model_->flux(uL)) - 0.5 * speed * (uR - uL);
   }
 
 private:
-  Model model_;
+  std::shared_ptr<Model> model_;
 };
+
+// template<class Diffusion>
+// class ApproximateFlux : public NumericalFlux<ApproximateFlux>
+// // Fluxes of the form "flux-average + diffusion"
+// public:
+//   virtual ~ApproximateFlux() {};
+
+// does this make sense? almost surely overengineered
 
 #endif // HYPSYS1D_NUMERICAL_FLUX_HPP
