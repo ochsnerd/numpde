@@ -50,16 +50,9 @@ public:
     assert(dudt.cols() == n_cells);
     assert(dudt.rows() == model->get_nvars());
 
-
-    // This uses the example interface
-    reconstruction.set(u0);
-
     for (int i = n_ghost - 1; i < n_cells - n_ghost; ++i) {
       // This is for when we use real reconstructions
-      //auto [uL, uR] = reconstruction(u0, i);
-
-      // This uses the example interface
-      auto [uL, uR] = reconstruction(i);
+      auto [uL, uR] = reconstruction(u0, i);
 
       fL = fR;
       fR = numerical_flux(uL, uR);
