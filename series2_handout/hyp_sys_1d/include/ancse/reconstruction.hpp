@@ -80,11 +80,11 @@ private:
 
 
 template <class ScalarLimiter>
-class AffineReconstruction {
+class PWAffineReconstruction {
 public:
   using Vector = Eigen::VectorXd;
 
-  AffineReconstruction(const Grid& grid, ScalarLimiter sigma) : dx_{grid.dx}, sigma_{sigma} {}
+  PWAffineReconstruction(const Grid& grid, ScalarLimiter sigma) : dx_{grid.dx}, sigma_{sigma} {}
 
   std::pair<Vector, Vector> operator() (const Eigen::MatrixXd& u, int i) const {
     return {u.col(i) + .5 * dx_ * sigma_(u, dx_, i),

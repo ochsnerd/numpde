@@ -21,8 +21,8 @@ TEST(TestPWConstant, Example) {
 
 TEST(TestAffineReconstruction1, Example) {
   // Check with slope == 0
-  auto rc = AffineReconstruction(make_dummy_grid(),
-                                 [](Eigen::VectorXd _, double __, int ___) {return 0;});
+  auto rc = PWAffineReconstruction(make_dummy_grid(),
+                                   [](Eigen::VectorXd _, double __, int ___) {return 0;});
   Eigen::MatrixXd u(2, 2);
   u << 1, 2, 3, 4;
 
@@ -40,7 +40,7 @@ TEST(TestAffineReconstruction2, Example) {
                          return (u[i+1] - u[i])/dx;
                        };
 
-  auto rc = AffineReconstruction(make_dummy_grid(), forward_slope);
+  auto rc = PWAffineReconstruction(make_dummy_grid(), forward_slope);
 
   Eigen::MatrixXd u(1,3);
   u << 1,0,1;
