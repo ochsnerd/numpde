@@ -39,7 +39,7 @@ public:
     int n_ghost = grid.n_ghost;
 
     double dx = grid.dx;
-    Vector fL, fR;
+    Vector fL(model->get_nvars()), fR(model->get_nvars());
     // very unsure how portable that actually is, but it works for Eigen::DenseBase
     // and for double, so that's cool I guess ¯\_(ツ)_/¯
     fR *= 0.0;
