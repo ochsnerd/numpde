@@ -7,7 +7,7 @@
 
 #define REGISTER_NUMERICAL_FLUX(token, FluxType, flux)                         \
     if (config["flux"] == (token)) {                                           \
-        return std::make_shared<FVMRateOfChange<FluxType, Reconstruction>>(    \
+      return std::make_shared<FVMRateOfChange<FluxType, Reconstruction>>( \
             grid, model, flux, reconstruction);                                       \
     }
 
@@ -19,12 +19,11 @@ deduce_numerical_flux(const nlohmann::json &config,
                       const std::shared_ptr<SimulationTime> &simulation_time,
                       const Reconstruction &reconstruction)
 {
-    REGISTER_NUMERICAL_FLUX("central_flux", CentralFlux, CentralFlux(model))
+  REGISTER_NUMERICAL_FLUX("central_flux", CentralFlux, CentralFlux(model))
 
-    // Register the other numerical fluxes.
-
-    throw std::runtime_error(
-        fmt::format("Unknown numerical flux. {}", std::string(config["flux"])));
+  REGISTER_NUMERICAL_FLUX("Rusanov_flux", RusanovFlux, RusanovFlux(model))
+  throw std::runtime_error(
+    fmt::format("Unknown numerical flux. {}", std::string(config["flux"])));
 }
 #undef REGISTER_NUMERICAL_FLUX
 
@@ -40,12 +39,12 @@ std::shared_ptr<RateOfChange> make_fvm_rate_of_change(
     const std::shared_ptr<Model> &model,
     const std::shared_ptr<SimulationTime> &simulation_time)
 {
-    REGISTER_RECONSTRUCTION("o1", PWConstantReconstruction{})
+  //REGISTER_RECONSTRUCTION("o1", PWConstantReconstruction{})
 
-    // Register piecewise linear reconstructions.
+  REGISTER_RECONSTRUCTION("minmod", PWAffineReconstruction(grid, minmod_limiter))
 
-    throw std::runtime_error(fmt::format(
-        "Unknown reconstruction. [{}]", std::string(config["reconstruction"])));
+  throw std::runtime_error(fmt::format(
+    "Unknown reconstruction. [{}]", std::string(config["reconstruction"])));
 }
 
 #undef REGISTER_RECONSTRUCTION

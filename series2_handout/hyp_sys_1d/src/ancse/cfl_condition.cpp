@@ -9,7 +9,7 @@ make_cfl_condition(const Grid &grid,
                    const std::shared_ptr<Model> &model,
                    double cfl_number) {
     // implement this 'factory' for your CFL condition.
-    return nullptr;
+  return std::make_shared<ConcreteCFLCondition>(grid, model, cfl_number);
 }
 
 /// make CFL condition for DG
