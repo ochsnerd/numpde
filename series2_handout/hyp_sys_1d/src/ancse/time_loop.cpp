@@ -9,6 +9,8 @@ void TimeLoop :: operator()(Eigen::MatrixXd u0) const
 
     simulation_time->dt = (*cfl_condition)(u0);
 
+    time_integrator->setup(u0);
+
     while (!is_finished(*simulation_time)) {
         (*time_integrator)(u1, u0, simulation_time->dt);
 
@@ -20,7 +22,7 @@ void TimeLoop :: operator()(Eigen::MatrixXd u0) const
             simulation_time->dt = simulation_time->t_end - simulation_time->t;
         }
 
-        //write_snapshot(u1);
+        write_snapshot(u1);
 
         u0.swap(u1);
 

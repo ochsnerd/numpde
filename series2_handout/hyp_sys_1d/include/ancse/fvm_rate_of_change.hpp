@@ -61,6 +61,7 @@ public:
     }
   }
 
+  virtual void to_cons(Matrix& u) const override { model->prim_to_cons(u,u); }
 private:
   Grid grid;
   std::shared_ptr<Model> model;

@@ -24,6 +24,8 @@ class Model {
 
   virtual Vector cons_to_prim(const Vector &u) const = 0;
   virtual Vector prim_to_cons(const Vector &u) const = 0;
+  virtual void cons_to_prim(const Matrix& u_cons, Matrix& u_prim) const = 0;
+  virtual void prim_to_cons(const Matrix& u_prim, Matrix& u_cons) const = 0;
 
   virtual int get_nvars() const = 0;
   virtual std::string get_name() const = 0;
@@ -64,8 +66,16 @@ class Burgers : public Model {
         return u;
     }
 
+    void cons_to_prim(const Eigen::MatrixXd& u_cons, Eigen::MatrixXd& u_prim) const override {
+      u_prim = u_cons;
+    }
+
     Eigen::VectorXd prim_to_cons(const Eigen::VectorXd &u) const override {
         return u;
+    }
+
+    void prim_to_cons(const Eigen::MatrixXd& u_prim, Eigen::MatrixXd& u_cons) const override {
+      u_cons = u_prim;
     }
 
     int get_nvars() const override
@@ -121,26 +131,53 @@ public:
     return eigenvalues(u)(2);
   }
 
-  // Primitve variables:
+  // Primitive variables:
   // rho, v, p
   Vector cons_to_prim(const Vector &u_cons) const override {
+    assert(u_cons.size() == n_vars);
+    assert(u_cons(0) > 0);
+    assert(u_cons(2) >= 0);
+
     Vector u_prim(3);
     u_prim <<
       u_cons(0),
       u_cons(1) / u_cons(0),
-      (u_cons(2) - 0.5 * u_cons(1) * u_cons(1) / u_cons(0) / u_cons(0)) * (gamma - 1);
+      (u_cons(2) - 0.5 * u_cons(1) * u_cons(1) / u_cons(0)) * (gamma - 1);
+
+    if (u_prim(0) <= 0 || u_prim(2) < 0) std::cout << "cons:\n" << u_cons << "\n -> \n" << "prim:\n" << u_prim << "\n -- \n";
     return u_prim;
+  }
+
+  void cons_to_prim(const Matrix& u_cons, Matrix& u_prim) const override {
+    u_prim.resizeLike(u_cons);
+
+    for (int i = 0; i < u_cons.cols(); ++i) {
+      u_prim.col(i) = cons_to_prim(u_cons.col(i));
+    }
   }
 
   // Conservative variables:
   // rho, m, E
   Vector prim_to_cons(const Vector &u_prim) const override {
+    assert(u_prim.size() == n_vars);
+    assert(u_prim(0) > 0);
+    assert(u_prim(2) >= 0);
+
     Vector u_cons(3);
     u_cons <<
       rho(u_prim),
       m(u_prim),
       E(u_prim);
+    if (u_cons(0) <= 0 || u_cons(2) < 0) std::cout << "prim:\n" << u_prim << "\n -> \n" << "cons:\n" << u_cons << "\n -- \n";
     return u_cons;
+  }
+
+  void prim_to_cons(const Matrix& u_prim, Matrix& u_cons) const override {
+    u_cons.resizeLike(u_prim);
+
+    for (int i = 0; i < u_prim.cols(); ++i) {
+      u_cons.col(i) = prim_to_cons(u_prim.col(i));
+    }
   }
 
   void set_gamma(double gamma_)

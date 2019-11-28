@@ -17,6 +17,8 @@ public:
    */
   virtual void operator()(Matrix& dudt,
                           const Matrix& u0) const = 0;
+
+  virtual void to_cons(Matrix& u) const = 0;
 };
 
 #endif // HYPSYS1D_FVM_RATE_OF_CHANGE_HPP

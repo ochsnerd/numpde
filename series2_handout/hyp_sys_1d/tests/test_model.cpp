@@ -32,3 +32,33 @@ TEST(TestEulerModel, Example) {
     H - c,  0.5,  H + c;
   ASSERT_DOUBLE_EQ((model.eigenvectors(u) - evs).norm(), 0);
 }
+
+TEST(TestEulerModel2, Conversions) {
+  auto model = Euler();
+  Eigen::VectorXd u;
+  u = Eigen::Vector3d(1,1,1);
+
+  ASSERT_DOUBLE_EQ(u(0), model.cons_to_prim(model.prim_to_cons(u))(0));
+  ASSERT_DOUBLE_EQ(u(1), model.cons_to_prim(model.prim_to_cons(u))(1));
+  ASSERT_DOUBLE_EQ(u(2), model.cons_to_prim(model.prim_to_cons(u))(2));
+
+  u = Eigen::Vector3d(1,0,0);
+
+  ASSERT_DOUBLE_EQ(u(0), model.cons_to_prim(model.prim_to_cons(u))(0));
+  ASSERT_DOUBLE_EQ(u(1), model.cons_to_prim(model.prim_to_cons(u))(1));
+  ASSERT_DOUBLE_EQ(u(2), model.cons_to_prim(model.prim_to_cons(u))(2));
+
+  u = Eigen::Vector3d(M_PI, -12.34, 42);
+
+  ASSERT_DOUBLE_EQ(u(0), model.cons_to_prim(model.prim_to_cons(u))(0));
+  ASSERT_DOUBLE_EQ(u(1), model.cons_to_prim(model.prim_to_cons(u))(1));
+  ASSERT_DOUBLE_EQ(u(2), model.cons_to_prim(model.prim_to_cons(u))(2));
+
+  ASSERT_DOUBLE_EQ(model.cons_to_prim(u)(0), u(0));
+  ASSERT_DOUBLE_EQ(model.cons_to_prim(u)(1), u(1) / u(0));
+  ASSERT_DOUBLE_EQ(model.cons_to_prim(u)(2), (u(2) - .5 * u(1) * u(1) / u(0)) * (model.get_gamma() - 1));
+
+  ASSERT_DOUBLE_EQ(model.prim_to_cons(u)(0), u(0));
+  ASSERT_DOUBLE_EQ(model.prim_to_cons(u)(1), u(0) * u(1));
+  ASSERT_DOUBLE_EQ(model.prim_to_cons(u)(2), u(2) / (model.get_gamma() - 1) + 0.5 * u(0) * u(1) * u(1));
+}

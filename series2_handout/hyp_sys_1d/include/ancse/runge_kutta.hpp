@@ -22,6 +22,7 @@ public:
   virtual void operator()(Matrix& u1,
                           const Matrix& u0,
                           double dt) const = 0;
+  virtual void setup(Matrix& u) const = 0;
 };
 
 /// Runge-Kutta time integration methods.
@@ -40,6 +41,12 @@ class RungeKutta : public TimeIntegrator {
       boundary_condition(std::move(boundary_condition_)),
       limiting(std::move(limiting_))
   {}
+
+  virtual void setup(Matrix& u) const override{
+    rate_of_change->to_cons(u);
+    // Don't limit before the simulation
+    (*boundary_condition)(u);
+  }
 
 protected:
   void post_euler_step(Eigen::MatrixXd &u) const {

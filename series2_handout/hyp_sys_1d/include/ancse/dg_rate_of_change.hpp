@@ -46,6 +46,8 @@ class DGRateOfChange : public RateOfChange {
         eval_volume_integral(dudt, u0);
     }
 
+    virtual void to_cons(Eigen::MatrixXd& u) const override {}
+
     void eval_numerical_flux (Eigen::MatrixXd &dudt,
                               const Eigen::MatrixXd &u0) const;
 

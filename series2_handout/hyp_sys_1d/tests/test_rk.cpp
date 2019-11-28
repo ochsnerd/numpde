@@ -27,6 +27,8 @@ class ExpODE : public RateOfChange {
                             const Eigen::MatrixXd &u0) const override {
         dudt = -u0;
     }
+
+  virtual void to_cons(Eigen::MatrixXd& u) const override {}
 };
 
 double
