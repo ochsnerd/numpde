@@ -37,28 +37,27 @@ public:
                           const Matrix& u0) const override {
     int n_cells = grid.n_cells;
     int n_ghost = grid.n_ghost;
+    int n_vars = model->get_nvars();
 
     double dx = grid.dx;
-    Vector fL(model->get_nvars()), fR(model->get_nvars());
-    // very unsure how portable that actually is, but it works for Eigen::DenseBase
-    // and for double, so that's cool I guess ¯\_(ツ)_/¯
-    fR *= 0.0;
+    Vector fL(n_vars), fR(n_vars);
+
+    fR *= 0;
 
     // quick sanity check
     assert(dudt.rows() == u0.rows());
     assert(dudt.cols() == u0.cols());
     assert(dudt.cols() == n_cells);
-    assert(dudt.rows() == model->get_nvars());
+    assert(dudt.rows() == n_vars);
 
     for (int i = n_ghost - 1; i < n_cells - n_ghost; ++i) {
-      // This is for when we use real reconstructions
-      auto [uL, uR] = reconstruction(u0, i);
-
       fL = fR;
+
+      auto [uL, uR] = reconstruction(u0, i);
       fR = numerical_flux(uL, uR);
 
       dudt.col(i) = (fL - fR) / dx;
-    }
+   }
   }
 
   virtual void to_cons(Matrix& u) const override { model->prim_to_cons(u,u); }
