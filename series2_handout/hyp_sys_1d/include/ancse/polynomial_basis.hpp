@@ -15,7 +15,8 @@ class PolynomialBasis {
         set_scaling_factor(scaling_factor_);
     }
 
-    void set_scaling_factor(double scaling_factor_) const {
+  // No way for a const setter to make sense semantically
+  void set_scaling_factor(double scaling_factor_) const {
         scaling_factor = scaling_factor_;
     }
 

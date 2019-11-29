@@ -6,6 +6,7 @@ target_sources(unit_tests
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/test_numerical_flux.cpp
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/test_reconstruction.cpp
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/test_rk.cpp
+  PRIVATE ${CMAKE_CURRENT_LIST_DIR}/test_poly.cpp
   PRIVATE ${CMAKE_CURRENT_LIST_DIR}/unit_tests.cpp
 )
 
