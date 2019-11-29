@@ -144,7 +144,6 @@ public:
       u_cons(1) / u_cons(0),
       (u_cons(2) - 0.5 * u_cons(1) * u_cons(1) / u_cons(0)) * (gamma - 1);
 
-    if (u_prim(0) <= 0 || u_prim(2) < 0) std::cout << "cons:\n" << u_cons << "\n -> \n" << "prim:\n" << u_prim << "\n -- \n";
     return u_prim;
   }
 
@@ -168,7 +167,7 @@ public:
       rho(u_prim),
       m(u_prim),
       E(u_prim);
-    if (u_cons(0) <= 0 || u_cons(2) < 0) std::cout << "prim:\n" << u_prim << "\n -> \n" << "cons:\n" << u_cons << "\n -- \n";
+
     return u_cons;
   }
 
