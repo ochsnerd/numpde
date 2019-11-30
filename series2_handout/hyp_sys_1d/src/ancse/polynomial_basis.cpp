@@ -9,9 +9,9 @@ Eigen::VectorXd PolynomialBasis :: operator() (double xi) const
 {
   assert(0 <= xi && xi <= 1);
 
-  Eigen::VectorXd phi(p);
+  Eigen::VectorXd phi(p + 1);
 
-  for (int k = 0; k < p; ++k) {
+  for (int k = 0; k < p + 1; ++k) {
     phi(k) = std::sqrt(2 * k + 1) * std::legendre(k, 2 * xi - 1);
   }
 

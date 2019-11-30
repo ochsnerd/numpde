@@ -113,13 +113,18 @@ namespace Rosetta {
 
 
 TEST(Polybasis, Orthogonality) {
+  int q = 5;
+  double fac1 = 2.0;
+  double fac2 = -M_PI;
   Rosetta::GaussLegendreQuadrature<10> integrator;
 
-  for (int i = 0; i < 3; ++i) {
-    for (int j = 0; j < 3; ++j) {
-      auto f = [i, j](double x) { return PolynomialBasis(3, 2)(x)[i] * PolynomialBasis(3, -1)(x)[j]; };
+  for (int i = 0; i < q + 1; ++i) {
+    for (int j = 0; j < q + 1; ++j) {
+      auto f = [&](double x)
+               { return PolynomialBasis(q, fac1)(x)[i] * PolynomialBasis(q, fac2)(x)[j]; };
+
       ASSERT_NEAR(integrator.integrate(0, 1, f),
-                  i == j ? -2.0 : 0.0,
+                  i == j ? fac1 * fac2 : 0.0,
                   1e-10);
     }
   }
