@@ -129,3 +129,27 @@ TEST(Polybasis, Orthogonality) {
     }
   }
 }
+
+TEST(Polybasis, Example) {
+  double s = M_PI;
+  Eigen::VectorXd d = PolynomialBasis(4, s).deriv(0) / s;
+  ASSERT_DOUBLE_EQ(d(0), 0);
+  ASSERT_DOUBLE_EQ(d(1), std::sqrt(3));
+  ASSERT_DOUBLE_EQ(d(2), std::sqrt(5) * 3 * (-1));
+  ASSERT_DOUBLE_EQ(d(3), std::sqrt(7) * .5 * (15 - 3));
+  ASSERT_DOUBLE_EQ(d(4), std::sqrt(9) * 2.5 * (-7 + 3));
+
+  d = PolynomialBasis(4, s).deriv(0.5) / s;
+  ASSERT_DOUBLE_EQ(d(0), 0);
+  ASSERT_DOUBLE_EQ(d(1), std::sqrt(3));
+  ASSERT_DOUBLE_EQ(d(2), 0);
+  ASSERT_DOUBLE_EQ(d(3), std::sqrt(7) * (-1.5));
+  ASSERT_DOUBLE_EQ(d(4), 0);
+
+  d = PolynomialBasis(4, s).deriv(1) / s;
+  ASSERT_DOUBLE_EQ(d(0), 0);
+  ASSERT_DOUBLE_EQ(d(1), std::sqrt(3));
+  ASSERT_DOUBLE_EQ(d(2), std::sqrt(5) * 3);
+  ASSERT_DOUBLE_EQ(d(3), std::sqrt(7) * .5 * (15 - 3));
+  ASSERT_DOUBLE_EQ(d(4), std::sqrt(9) * 2.5 * (7 -3));
+}
