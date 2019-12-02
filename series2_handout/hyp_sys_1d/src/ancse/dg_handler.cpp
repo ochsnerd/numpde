@@ -7,10 +7,17 @@ Eigen::VectorXd DGHandler
 :: build_sol(const Eigen::VectorXd& u,
              const Eigen::VectorXd& basis) const
 {
-    Eigen::VectorXd uSol = Eigen::VectorXd::Zero(n_vars);
+  // untested!
+  assert(u.size() == n_vars * n_coeff);
+  assert(basis.size() == n_coeff);
 
+  Eigen::VectorXd u_h(n_vars);
 
-    return uSol;
+  for (int l = 0; l < n_vars; ++l) {
+    u_h(l) = basis.dot(u.segment(l * n_coeff, n_coeff)) / std::sqrt(grid.dx);
+  }
+
+  return u_h;
 }
 
 /// build solution from DG coefficients at a given reference point
@@ -18,10 +25,11 @@ Eigen::VectorXd DGHandler
 :: build_sol(const Eigen::VectorXd& u,
              double xi) const
 {
-    Eigen::VectorXd uSol(n_vars);
-
-
-    return uSol;
+  // untested!
+  // well, reference_point is tested and this function doesn't do much
+  // more than that...
+  double x = reference_point(grid, xi);
+  return build_sol(u, poly_basis(x));
 }
 
 /// build cell average
@@ -29,8 +37,19 @@ Eigen::MatrixXd DGHandler
 :: build_cell_avg (const Eigen::MatrixXd& u) const
 {
     auto n_cells = u.cols();
-    Eigen::MatrixXd u0 (n_vars, n_cells);
 
+    assert(n_cells == grid.n_cells);
+    assert(u.rows() == n_vars * n_coeff);
+
+    Eigen::MatrixXd u0(n_vars, n_cells);
+
+    // I'm sure this could be done cooler with some Eigen
+    // fucntionality involving stride
+    for (int i = 0; i < n_vars; ++i) {
+      for (int j = 0; j < n_cells; ++j) {
+        u0(i, j) = u(i * n_coeff, j);
+      }
+    }
 
     return u0;
 }

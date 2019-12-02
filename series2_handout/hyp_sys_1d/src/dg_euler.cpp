@@ -116,7 +116,7 @@ void sod_shock_tube_test(const nlohmann::json &config)
 
     auto grid = Grid({0.0, 1.0}, n_cells, n_ghost);
     auto poly_basis = PolynomialBasis(deg, 1./sqrt(grid.dx));
-    auto dg_handler = DGHandler(model, poly_basis);
+    auto dg_handler = DGHandler(model, poly_basis, grid);
     auto u0 = ic(fn, grid, poly_basis, dg_handler);
 
     auto dg = make_dg(config, grid, poly_basis, dg_handler, model);

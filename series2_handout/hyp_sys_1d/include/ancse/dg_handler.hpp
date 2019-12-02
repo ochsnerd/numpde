@@ -14,8 +14,10 @@ class DGHandler {
   public:
 
     DGHandler (const std::shared_ptr<Model> &model,
-               const PolynomialBasis &poly_basis)
-        : poly_basis (poly_basis)
+               const PolynomialBasis &poly_basis,
+               const Grid& grid)
+      : grid(grid),
+        poly_basis (poly_basis)
     {
         n_vars = model->get_nvars();
         n_coeff = 1 + poly_basis.get_degree();
@@ -74,6 +76,7 @@ class DGHandler {
 
   private:
     int n_vars, n_coeff;
+    Grid grid;
     PolynomialBasis poly_basis;
     
     mutable int n_quad;
