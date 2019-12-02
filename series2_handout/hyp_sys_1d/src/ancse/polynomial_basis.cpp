@@ -6,7 +6,9 @@
 // implementing the derivative of the Legendre polynomials
 // for general q seems a bit overkill (since all explicit
 // formulas seem to involve binomial coefficents and I don't
-// feel like dealing with that)
+// feel like dealing with that).
+// Also I'm a dumbass and wasn't working with the most up-to-date
+// exercise sheet.
 double legendre_deriv(int k, double xi) {
   assert(k >= 0 && k <= 4);
   switch (k) {

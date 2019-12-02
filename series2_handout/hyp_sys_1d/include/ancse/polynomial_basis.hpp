@@ -5,37 +5,37 @@
 
 /// Legendre polynomial basis
 class PolynomialBasis {
-  public:
+public:
 
-    PolynomialBasis(int q) : p(q) {
-        set_scaling_factor(1.0);
-    }
+  PolynomialBasis(int q) : p(q) {
+    set_scaling_factor(1.0);
+  }
 
-    PolynomialBasis(int q, double scaling_factor_) : p(q) {
-        set_scaling_factor(scaling_factor_);
-    }
+  PolynomialBasis(int q, double scaling_factor_) : p(q) {
+    set_scaling_factor(scaling_factor_);
+  }
 
   // No way for a const setter to make sense semantically
   void set_scaling_factor(double scaling_factor_) const {
-        scaling_factor = scaling_factor_;
-    }
+    scaling_factor = scaling_factor_;
+  }
 
-    /// Computes the Legendre polynomial basis
-    /// at a given reference point xi \in [0,1]
-    Eigen::VectorXd operator() (double xi) const;
+  /// Computes the Legendre polynomial basis
+  /// at a given reference point xi \in [0,1]
+  Eigen::VectorXd operator() (double xi) const;
     
-    /// Computes the derivative of Legendre polynomial basis
-    /// at a given reference point xi \in [0,1]
-    Eigen::VectorXd deriv (double xi) const;
+  /// Computes the derivative of Legendre polynomial basis
+  /// at a given reference point xi \in [0,1]
+  Eigen::VectorXd deriv (double xi) const;
 
-    int get_degree() const {
-        return p;
-    }
+  int get_degree() const {
+    return p;
+  }
 
-  private:
+private:
 
-    int p;
-    mutable double scaling_factor;
+  const int p;
+  mutable double scaling_factor;
 };
 
 #endif // HYPSYS1D_POLYNOMIAL_BASIS_HPP
