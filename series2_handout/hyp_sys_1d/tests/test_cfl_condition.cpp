@@ -33,6 +33,6 @@ TEST(CFLCondition, Example) {
     auto model = std::make_shared<Burgers>();
     double cfl_number = 0.5;
 
-    auto cfl_condition = ConcreteCFLCondition(grid, model, cfl_number);
+    auto cfl_condition = FVMCFLCondition(grid, model, cfl_number);
     check_cfl_condition_scalar(cfl_condition, grid, cfl_number);
 }
