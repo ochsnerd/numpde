@@ -139,10 +139,14 @@ public:
     assert(u_cons(2) >= 0);
 
     Vector u_prim(3);
+    // u_prim <<
+    //   u_cons(0),
+    //   u_cons(1) / u_cons(0),
+    //   (u_cons(2) - 0.5 * u_cons(1) * u_cons(1) / u_cons(0)) * (gamma - 1);
     u_prim <<
-      u_cons(0),
-      u_cons(1) / u_cons(0),
-      (u_cons(2) - 0.5 * u_cons(1) * u_cons(1) / u_cons(0)) * (gamma - 1);
+      rho(u_cons),
+      v(u_cons),
+      p(u_cons);
 
     return u_prim;
   }
@@ -163,10 +167,14 @@ public:
     assert(u_prim(2) >= 0);
 
     Vector u_cons(3);
+    // u_cons <<
+    //   rho(u_prim),
+    //   m(u_prim),
+    //   E(u_prim);
     u_cons <<
-      rho(u_prim),
-      m(u_prim),
-      E(u_prim);
+      u_prim(0),
+      u_prim(1) * u_prim(0),
+      u_prim(2) / (gamma - 1) + .5 * u_prim(1) * u_prim(1) * u_prim(0);
 
     return u_cons;
   }
@@ -205,21 +213,21 @@ private:
   double rho(const Vector& u) const {
     return u(0);
   }
-  // velocity
-  double v(const Vector& u) const {
-    return u(1);
-  }
-  // pressure
-  double p(const Vector& u) const {
-    return u(2);
-  }
   // momentum
   double m(const Vector& u) const {
-    return v(u) * rho(u);
+    return u(1);
   }
   // Energy
   double E(const Vector& u) const {
-    return p(u) / (gamma - 1) + 0.5 * rho(u) * v(u) * v(u);
+    return u(2);
+  }
+  // velocity
+  double v(const Vector& u) const {
+    return m(u) / rho(u);
+  }
+  // pressure
+  double p(const Vector& u) const {
+    return (E(u) - .5 * m(u) * m(u) / rho(u)) * (gamma - 1);
   }
   // soundspeed
   double c(const Vector& u) const {

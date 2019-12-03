@@ -43,7 +43,8 @@ class RungeKutta : public TimeIntegrator {
   {}
 
   virtual void setup(Matrix& u) const override{
-    rate_of_change->to_cons(u);
+    // Apparently the initial conditions are already in conservative variables...
+    // rate_of_change->to_cons(u);
     // Don't limit before the simulation
     (*boundary_condition)(u);
   }
