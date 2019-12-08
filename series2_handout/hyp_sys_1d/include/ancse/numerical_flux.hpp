@@ -99,6 +99,83 @@ private:
   std::shared_ptr<Model> model_;
   double speed_;
 };
+
+class RoeFlux : public NumericalFlux<RoeFlux> {
+public:
+  using Vector = typename NumericalFlux<RoeFlux>::Vector;
+
+  explicit RoeFlux(const std::shared_ptr<Model>& model) : model_{model} {}
+
+  virtual Vector compute_flux(const Vector& uL, const Vector& uR) const override {
+    auto flux_average = 0.5 * (model_->flux(uR) + model_->flux(uL));
+    auto diffusion = 0.5 * eigenbasis_(uL, uR) * abs_(eigenvalues_(uL, uR)) * inv_eigenbasis_(uL, uR) * (uR - uL);
+    return  flux_average - diffusion;
+  }
+
+private:
+  using Matrix = Eigen::MatrixXd;
+
+  Matrix eigenbasis_(const Vector& uL, const Vector& uR) const {
+    double v_bar = roe_average(uL, uR, v(uL), v(uR));
+    double h_bar = roe_average(uL, uR, H(uL), H(uR));
+    double c_bar = std::sqrt((1 - gamma) * (h_bar - 0.5 * v_bar * v_bar));
+
+    Matrix R(3,3);
+    R <<
+      1,                     1,                  1,
+      v_bar - c_bar,         v_bar,              v_bar + c_bar,
+      h_bar - v_bar * c_bar, .5 * v_bar * v_bar, h_bar + v_bar * c_bar;
+    return R;
+  }
+
+  Matrix eigenvalues_(const Vector& uL, const Vector& uR) const {
+    double v_bar = roe_average(uL, uR, v(uL), v(uR));
+    double h_bar = roe_average(uL, uR, H(uL), H(uR));
+    double c_bar = std::sqrt((1 - gamma) * (h_bar - 0.5 * v_bar * v_bar));
+    return Eigen::Vector3d(v_bar - c_bar, v_bar, v_bar + c_bar).asDiagonal();
+  }
+
+  Matrix inv_eigenbasis_(const Vector& uL, const Vector& uR) const {
+    // plz invert eigenbasis_(uL, uR)
+    // make sure to handle normalization correctly
+    return Matrix{};
+  }
+
+  Matrix abs_(const Matrix& lambda) const {
+    // Could implement Hartens entropy fix here for example
+    return abs(lambda.array());
+  }
+
+  double roe_average(const Vector& uL, const Vector& uR, double xL, double xR) const {
+    double sqrt_rhoL = std::sqrt(uL[0]);
+    double sqrt_rhoR = std::sqrt(uR[0]);
+
+    return (sqrt_rhoL * xL + sqrt_rhoR * xR) / (sqrt_rhoL + sqrt_rhoR);
+  }
+
+  // Dilemma: This should semantically be handled by the model. However we work
+  // with a pointer to the base class, so we'd have to implement these functions
+  // also for other models (Burgers) where they dont make sense.
+  // A solution would be to have a RoeModel thats an adaptor to model and implements
+  // methods to get the eigendecomposition of the Roe matrix (or a Roe-Matrix class).
+  double rho(const Vector& u) const {
+    return u[0];
+  }
+
+  double v(const Vector& u) const {
+    return u[1] / u[0];
+  }
+
+  double H(const Vector& u) const {
+    double E = u[2];
+    double p = (E - .5 * rho(u) * v(u) * v(u)) * (gamma - 1);
+    return (E + p) / rho(u);
+  }
+
+  double gamma = 5./3;  // this is horrible
+  std::shared_ptr<Model> model_;
+};
+                                       
 // template<class Diffusion>
 // class ApproximateFlux : public NumericalFlux<ApproximateFlux>
 // // Fluxes of the form "flux-average + diffusion"
