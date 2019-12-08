@@ -3,13 +3,13 @@
 
   "initial_conditions": "sod_shock_tube",
   "output_dir": "../output/fvm/sod_shock_tube",
-  "output_file": "euler_hllc_minmod_prim",
+  "output_file": "euler_rus_minmod_cons",
   
   "boundary_condition": "outflow",
   "reconstruction": "minmod",
-  "reconstruction_variable": "primitive",
+  "reconstruction_variable": "conservative",
   "time_integrator": "ssp2",
-  "flux": "hllc",
+  "flux": "Rusanov_flux",
 
   "n_interior_cells": 128,
   "n_ghost": 2,
