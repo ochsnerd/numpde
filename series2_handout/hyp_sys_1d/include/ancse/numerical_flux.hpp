@@ -79,6 +79,26 @@ private:
   std::shared_ptr<Model> model_;
 };
 
+class LaxFriedrichsFlux : public NumericalFlux<LaxFriedrichsFlux> {
+  // LN 4.2.3
+public:
+  using Vector = typename NumericalFlux<LaxFriedrichsFlux>::Vector;
+
+  LaxFriedrichsFlux(const std::shared_ptr<Model>& model,
+                    const Grid& grid,
+                    const std::shared_ptr<SimulationTime>& time) :
+    model_{model},
+    speed_{grid.dx / time->dt}
+  {}
+
+  virtual Vector compute_flux(const Vector& uL, const Vector& uR) const override {
+    return 0.5 * (model_->flux(uR) + model_->flux(uL)) - 0.5 * speed_ * (uR -uL);
+  }
+
+private:
+  std::shared_ptr<Model> model_;
+  double speed_;
+};
 // template<class Diffusion>
 // class ApproximateFlux : public NumericalFlux<ApproximateFlux>
 // // Fluxes of the form "flux-average + diffusion"
